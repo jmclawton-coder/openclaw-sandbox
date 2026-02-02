@@ -1,0 +1,15 @@
+{
+  "name": "openclaw-sandbox",
+  "version": "1.0.0",
+  "description": "Safe testing environment for OpenClaw integrations",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "keywords": ["openclaw", "sandbox", "testing"],
+  "author": "Watson",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {}
+}

@@ -1,0 +1,4 @@
+[dotenv@17.3.1] injecting env (11) from .env.local -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+🚀 Twilio-Voicebox server running on port 3000
+📞 Webhook URL: http://localhost:3000/voice
+🌐 Use ngrok to expose this to Twilio: ngrok http 3000

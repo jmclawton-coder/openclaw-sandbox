@@ -1,8 +1,9 @@
 const express = require('express');
 const twilio = require('twilio');
 const axios = require('axios');
-const FormData = require('form-data');
-const OpenAI = require('openai');
+const { Readable } = require('stream');
+const speech = require('@google-cloud/speech');
+const path = require('path');
 require('dotenv').config({ path: '.env.local' });
 
 const app = express();
@@ -12,9 +13,9 @@ const port = process.env.PORT || 3000;
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-// Initialize OpenAI client for Whisper STT
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+// Initialize Google Cloud Speech-to-Text client with OAuth2 credentials
+const speechClient = new speech.SpeechClient({
+  keyFilename: path.join(__dirname, 'google-credentials.json')
 });
 
 // OpenClaw Gateway configuration
@@ -40,7 +41,7 @@ app.post('/voice', (req, res) => {
     method: 'POST',
     maxLength: 60, // Max 60 seconds
     playBeep: true,
-    transcribe: false, // We'll use Whisper instead
+    transcribe: false, // We'll use Google Cloud Speech-to-Text instead
     recordingStatusCallback: '/recording-status',
     recordingStatusCallbackMethod: 'POST'
   });
@@ -77,9 +78,9 @@ app.post('/recording-callback', async (req, res) => {
       responseType: 'arraybuffer'
     });
     
-    // Step 2: Transcribe using OpenAI Whisper
-    console.log('🎯 Transcribing with Whisper...');
-    const transcription = await transcribeWithWhisper(audioResponse.data);
+    // Step 2: Transcribe using Google Cloud Speech-to-Text
+    console.log('🎯 Transcribing with Google Cloud Speech...');
+    const transcription = await transcribeWithGoogleSTT(audioResponse.data);
     console.log('📝 Transcription:', transcription);
     
     if (!transcription || transcription.trim() === '') {
@@ -120,37 +121,66 @@ app.post('/recording-callback', async (req, res) => {
 });
 
 /**
- * Transcribe audio using OpenAI Whisper API
+ * Transcribe audio using Google Cloud Speech-to-Text streaming API
+ * Provides real-time speech recognition capability
  */
-async function transcribeWithWhisper(audioBuffer) {
+async function transcribeWithGoogleSTT(audioBuffer) {
   try {
-    const formData = new FormData();
-    formData.append('file', audioBuffer, {
-      filename: 'recording.mp3',
-      contentType: 'audio/mpeg'
-    });
-    formData.append('model', 'whisper-1');
-    formData.append('language', 'en');
+    // Create a readable stream from the audio buffer
+    const audioStream = Readable.from(audioBuffer);
     
-    const response = await openai.audio.transcriptions.create({
-      file: await toFile(audioBuffer, 'recording.mp3'),
-      model: 'whisper-1',
-      language: 'en'
+    // Configure the streaming recognition request
+    const request = {
+      config: {
+        encoding: 'MP3',
+        sampleRateHertz: 16000, // Twilio recordings are typically 8kHz, but we'll let Google auto-detect
+        languageCode: 'en-US',
+        enableAutomaticPunctuation: true,
+        model: 'default', // Use 'phone_call' model for better phone audio recognition
+        useEnhanced: true, // Use enhanced model for better accuracy
+      },
+      interimResults: false, // We only want final results
+    };
+    
+    // Create a streaming recognition stream
+    const recognizeStream = speechClient
+      .streamingRecognize(request)
+      .on('error', (error) => {
+        console.error('Google STT stream error:', error);
+        throw error;
+      });
+    
+    // Collect transcription results
+    let transcription = '';
+    
+    // Set up promise to handle the async streaming
+    const transcriptionPromise = new Promise((resolve, reject) => {
+      recognizeStream.on('data', (data) => {
+        if (data.results[0] && data.results[0].alternatives[0]) {
+          transcription += data.results[0].alternatives[0].transcript;
+        }
+      });
+      
+      recognizeStream.on('end', () => {
+        resolve(transcription.trim());
+      });
+      
+      recognizeStream.on('error', (error) => {
+        reject(error);
+      });
     });
     
-    return response.text;
+    // Pipe the audio stream to the recognition stream
+    audioStream.pipe(recognizeStream);
+    
+    // Wait for transcription to complete
+    const result = await transcriptionPromise;
+    return result;
+    
   } catch (error) {
-    console.error('Error transcribing with Whisper:', error);
+    console.error('Error transcribing with Google Speech-to-Text:', error);
     throw error;
   }
-}
-
-/**
- * Helper to convert buffer to file-like object for OpenAI API
- */
-async function toFile(buffer, filename) {
-  const { Blob } = await import('buffer');
-  return new Blob([buffer], { type: 'audio/mpeg' });
 }
 
 /**

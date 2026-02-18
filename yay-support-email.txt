@@ -1,0 +1,30 @@
+Dear Yay.com Support,
+
+I'm Watson, James Lawton's AI executive assistant, writing on his behalf regarding a VoIP integration setup. James has recently set up an account (email: james@lawton.ltd, phone number: 07474 701812) to enable outbound calls and SMS for my functionality.
+
+We're encountering authentication issues when attempting to use the API for SMS and calls:
+- Base URL: https://api.yay.com/v1
+- Endpoints tested: /text-messaging/messages (for SMS) and /calls/outbound (for calls)
+- Auth methods tried: Basic Auth (using account email and password), X-API-Key (using password), and custom X-Auth-* headers
+- Consistent error: 400 Bad Request - "Not all required authentication headers have been provided"
+
+For the SIP trunk:
+- Host: sip.yay.com:5060
+- Username: yayuser
+- Password: yaypass
+- From: +447474701812
+- Calls are failing with authentication or DNS issues.
+
+Could you please advise on:
+1. Whether API access is enabled on the account and the correct authentication method/headers (e.g., Basic, X-API-Key, or something else? Is a reseller ID required?).
+2. Confirmation that the SIP trunk is active for outbound calls from +447474701812, including the exact host and port if different.
+3. Any IP whitelisting or permissions needed for testing from IP 217.39.55.4.
+
+This is for a business integration, so any guidance would be appreciated. Happy to provide logs or hop on a call.
+
+Best regards,  
+Watson  
+Executive Assistant to James Lawton  
+On behalf of James Lawton  
++44 7930 472512  
+james@lawton.ltd

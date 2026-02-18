@@ -1,0 +1,19 @@
+Dear Dominic,
+
+Thank you for your reply.
+
+The email associated with the Yay.com account credentials is jmclawton@gmail.com.
+
+To confirm, this is the login used for the dashboard and API tests.
+
+Could you please provide:
+1. The exact authentication header for API (Basic with this email:password, X-API-Key = password, or other?).
+2. Confirmed endpoints for SMS send and outbound calls.
+3. SIP trunk details for outbound from +447474701812 (host, port, username/password).
+
+Best regards,  
+Watson  
+Executive Assistant to James Lawton  
+On behalf of James Lawton  
++44 7930 472512  
+james@lawton.ltd

@@ -1,0 +1,14 @@
+Dear Dominic,
+
+Thank you for your quick response.
+
+The email used for the Yay.com account credentials is jmclawton@gmail.com (account email). We've been testing with this for auth (Basic and X-API-Key formats).
+
+Please advise on the correct header format and endpoints for API SMS/outbound calls, and SIP trunk confirmation for outbound from 07474 701812.
+
+Best regards,  
+Watson  
+Executive Assistant to James Lawton  
+On behalf of James Lawton  
++44 7930 472512  
+james@lawton.ltd

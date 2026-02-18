@@ -1,0 +1,13 @@
+{
+  "name": "twilio-functions-local-scripts",
+  "version": "1.0.0",
+  "description": "Local scripts for Watson Twilio voice/SMS integration",
+  "scripts": {
+    "sms": "node send-sms.js",
+    "call": "node make-call.js"
+  },
+  "dependencies": {
+    "twilio": "^5.3.6",
+    "dotenv": "^16.4.7"
+  }
+}
